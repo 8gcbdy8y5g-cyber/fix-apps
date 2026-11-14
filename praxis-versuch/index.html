@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F2F2F7">
+<title>Doku-Fix Praxis (Versuch)</title>
+<style>
+:root{--grund:#F2F2F7;--flaeche:#FFFFFF;--schrift:#000;--schrift2:#6C6C70;--linie:#C6C6C8;--tape:#146C99;--chip:#E3EEF4;--warn:#C4001A;--gelb:#B26B00;--gruen:#248A3D;--rahmen:#D1D1D6;
+--a-KG:#0A6FD8;--a-ZNS:#7B3FC4;--a-MT:#0E9AA7;--a-KGG:#D6408A;--a-MLD:#C27C0E;--ppm:1.6}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--grund);color:var(--schrift);font:16px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+input,select,textarea{font:inherit;color:inherit}
+.kopf{position:sticky;top:0;z-index:5;background:rgba(242,242,247,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);padding:calc(env(safe-area-inset-top) + 10px) 18px 8px}
+.kopf h1{font-size:30px;line-height:1.1;margin:4px 0 6px;font-weight:700;letter-spacing:-.4px}
+.zeile{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.versuch{display:inline-block;font-size:12px;font-weight:600;color:var(--gelb);background:#FFF4DB;border-radius:6px;padding:2px 7px}
+.knopf{background:var(--tape);color:#fff;border-radius:10px;padding:8px 14px;font-weight:600;font-size:15px}
+.knopf.leise{background:var(--chip);color:var(--tape)}
+.knopf.rot{background:#FCE8EA;color:var(--warn)}
+.knopf.klein{padding:5px 10px;font-size:14px}
+.seg{display:inline-flex;background:#E3E3E8;border-radius:9px;padding:2px}
+.seg button{padding:5px 12px;border-radius:7px;font-size:14px;font-weight:500;color:var(--schrift2)}
+.seg button.an{background:#fff;color:var(--schrift);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.pfeil{width:34px;height:34px;border-radius:17px;background:var(--flaeche);font-size:20px;line-height:34px;text-align:center;color:var(--tape)}
+.datum{font-size:17px;font-weight:600;min-width:150px;text-align:center}
+main{padding:0 18px calc(96px + env(safe-area-inset-bottom))}
+.seite{display:none}.seite.an{display:block}
+.karte{background:var(--flaeche);border-radius:12px;overflow:hidden}
+.legende{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--schrift2);margin:6px 0 10px}
+.legende i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+/* Kalender */
+.kal{display:grid;background:var(--flaeche);border-radius:12px;overflow:hidden;position:relative}
+.kal-kopf{display:contents}
+.kal-kopf div{position:sticky;top:0;background:var(--flaeche);border-bottom:1px solid var(--rahmen);padding:8px 6px;font-size:14px;font-weight:600;text-align:center;z-index:2}
+.kal-kopf div small{display:block;font-weight:400;color:var(--schrift2);font-size:12px}
+.zeiten{position:relative;border-right:1px solid var(--rahmen)}
+.zeiten span{position:absolute;right:6px;font-size:11px;color:var(--schrift2);transform:translateY(-50%)}
+.spalte{position:relative;border-right:1px solid #ECECEF;cursor:copy}
+.spalte:last-child{border-right:0}
+.std{position:absolute;left:0;right:0;border-top:1px solid #EEEEF1}
+.std.halb{border-top-style:dashed;border-color:#F4F4F6}
+.termin{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;position:absolute;left:3px;right:3px;border-radius:7px;padding:3px 7px;font-size:12.5px;line-height:1.25;color:#fff;overflow:hidden;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.termin b{font-weight:600;font-size:13px}
+.termin.abgesagt{opacity:.38;text-decoration:line-through}
+.termin.nicht{background:#fff!important;color:var(--warn);border:1.5px solid var(--warn)}
+.termin.hb{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.18) 0 6px,transparent 6px 12px)}
+.pause{position:absolute;left:3px;right:3px;border-radius:7px;background:#FFF1D6;color:#8A5A00;font-size:12px;font-weight:600;padding:3px 7px;pointer-events:none}
+.dk{position:absolute;right:5px;bottom:3px;font-size:10.5px;font-weight:700;background:rgba(255,255,255,.92);color:#8A5A00;border-radius:5px;padding:0 5px;line-height:15px}.dk.f{color:var(--gruen)}.dk.p{color:#555}
+.offenleiste{display:flex;align-items:center;gap:10px;background:#FFF4DB;color:#7A4D00;border-radius:12px;padding:10px 14px;margin-bottom:10px;cursor:pointer;font-size:15px}.offenleiste b{font-weight:700}
+.vorschlag{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #ECECEF}.vorschlag:last-child{border-bottom:0}.vorschlag .unter{font-size:13px;color:var(--schrift2)}
+.termin.angefragt{background:#fff!important;color:var(--tape);border:1.5px dashed var(--tape)}
+.termin.zieht{opacity:.35}
+.geist{position:fixed;z-index:40;pointer-events:none;border-radius:7px;padding:3px 7px;font-size:12.5px;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.25);transform:scale(1.03)}
+.geist small{display:block;font-weight:700}
+.spalte.ziel{background:rgba(20,108,153,.06)}
+.handy{width:340px;max-width:100%;margin:0 auto 14px;border:10px solid #1C1C1E;border-radius:38px;background:#fff;overflow:hidden}
+.handy .bkopf{background:var(--tape);color:#fff;padding:18px 16px 14px}.handy .bkopf b{font-size:19px;display:block}.handy .bkopf span{font-size:13px;opacity:.85}
+.handy .bschritt{padding:12px 16px;border-bottom:1px solid #ECECEF}.handy .bschritt>div:first-child{font-size:13px;color:var(--schrift2);margin-bottom:6px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}.chips button{padding:6px 10px;border-radius:8px;background:#EDEDF0;font-size:14px}.chips button.an{background:var(--tape);color:#fff}
+.jetzt{position:absolute;left:0;right:0;border-top:2px solid #FF3B30;z-index:3;pointer-events:none}
+.leer{padding:30px;text-align:center;color:var(--schrift2)}
+/* Listen */
+.raster{display:grid;gap:14px}
+@media(min-width:760px){.raster.zwei{grid-template-columns:320px 1fr;align-items:start}}
+.liste .eintrag{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid #ECECEF;cursor:pointer}
+.liste .eintrag:last-child{border-bottom:0}
+.liste .eintrag.an{background:var(--chip)}
+.eintrag .titel{font-weight:600}
+.eintrag .unter{font-size:13px;color:var(--schrift2)}
+.eintrag .rechts{margin-left:auto;text-align:right;font-size:13px;color:var(--schrift2)}
+.suche{width:100%;padding:9px 12px;border-radius:10px;border:0;background:#E3E3E8;margin-bottom:10px}
+.ampel{display:inline-block;font-size:12px;font-weight:600;border-radius:6px;padding:2px 7px;white-space:nowrap}
+.ampel.r{background:#FCE8EA;color:var(--warn)}.ampel.g{background:#FFF4DB;color:var(--gelb)}.ampel.o{background:#E6F4EA;color:var(--gruen)}.ampel.n{background:#EDEDF0;color:var(--schrift2)}
+.kuerzel{display:inline-block;min-width:38px;text-align:center;font-size:12px;font-weight:700;color:#fff;border-radius:6px;padding:2px 6px}
+.balken{height:8px;border-radius:4px;background:#EDEDF0;overflow:hidden;display:flex;margin:6px 0 4px}
+.balken i{display:block;height:100%}
+.detail{padding:16px 18px}
+.detail h2{font-size:24px;margin:0 0 2px;letter-spacing:-.3px}
+.detail h3{font-size:13px;text-transform:uppercase;letter-spacing:.4px;color:var(--schrift2);font-weight:600;margin:18px 0 6px}
+.hinweis{font-size:13px;color:var(--schrift2)}
+.box{background:var(--flaeche);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.box h3{margin:0 0 6px;font-size:17px}
+.box p{margin:4px 0;font-size:15px}
+.knopfreihe{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+/* Reiter */
+nav{position:fixed;left:0;right:0;bottom:0;z-index:10;background:rgba(249,249,249,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--rahmen);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:0 1 160px;padding:7px 0 6px;font-size:11px;font-weight:500;color:#8E8E93;display:flex;flex-direction:column;align-items:center;gap:2px;border-top:2px solid transparent}
+nav button svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav button.an{color:var(--tape);background:var(--chip);border-top-color:var(--tape)}
+/* Blatt */
+.schleier{position:fixed;inset:0;background:rgba(0,0,0,.32);z-index:20;display:none;align-items:flex-end;justify-content:center}
+.schleier.an{display:flex}
+@media(min-width:760px){.schleier{align-items:center}}
+.blatt{background:var(--grund);width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:14px 14px 0 0;padding:0 0 calc(18px + env(safe-area-inset-bottom));animation:hoch .22s ease-out}
+@media(min-width:760px){.blatt{border-radius:14px}}
+@keyframes hoch{from{transform:translateY(30px);opacity:.4}to{transform:none;opacity:1}}
+.blatt-kopf{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;position:sticky;top:0;background:var(--grund);z-index:1}
+.blatt-kopf b{font-size:17px}
+.feld{background:var(--flaeche);border-radius:12px;margin:0 16px 12px;overflow:hidden}
+.feld label{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #ECECEF;min-height:46px}
+.feld label:last-child{border-bottom:0}
+.feld label span{flex:0 0 120px;color:var(--schrift2);font-size:15px}
+.feld input,.feld select{flex:1;border:0;background:none;padding:4px 0;min-width:0;text-align:right}
+.feld input[type=checkbox]{flex:0;width:22px;height:22px;accent-color:var(--tape);margin-left:auto}
+.kacheln{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;flex:1}
+.kacheln button{padding:5px 11px;border-radius:8px;background:#EDEDF0;font-size:14px;font-weight:500}
+.kacheln button.an{background:var(--tape);color:#fff}
+.vorschau{margin:0 16px 12px;font-size:14px}
+.vorschau div{padding:3px 0}
+.vorschau .konflikt{color:var(--warn)}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);background:rgba(30,30,32,.92);color:#fff;border-radius:12px;padding:10px 16px;font-size:15px;z-index:30;display:none;max-width:90vw}
+</style>
+</head>
+<body>
+<div class="kopf">
+  <div class="zeile"><span class="versuch">Versuch · erfundene Daten</span><span class="hinweis" id="kopfHinweis"></span></div>
+  <h1 id="titel">Kalender</h1>
+  <div class="zeile" id="kopfLeiste"></div>
+</div>
+<main>
+  <section class="seite an" id="s-kalender">
+    <div class="legende" id="legende"></div>
+    <div id="kalender"></div>
+  </section>
+  <section class="seite" id="s-patienten"><div class="raster zwei"><div><input class="suche" id="pSuche" placeholder="Patient suchen"><div class="karte liste" id="pListe"></div></div><div class="karte" id="pDetail"></div></div></section>
+  <section class="seite" id="s-rezepte"><div class="karte liste" id="rListe"></div><p class="hinweis" style="margin:10px 4px">Gezählt werden nur Einheiten und Fristen. Ob ein Rezept nach dem Heilmittelkatalog richtig ausgestellt ist, prüft die Praxissoftware oder das Abrechnungszentrum.</p></section>
+  <section class="seite" id="s-uebergabe"></section>
+</main>
+<nav id="nav">
+  <button data-s="kalender" class="an"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Kalender</button>
+  <button data-s="patienten"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c.8-4 4-6 7.5-6s6.7 2 7.5 6"/></svg>Patienten</button>
+  <button data-s="rezepte"><svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2.5"/><path d="M8.5 8.5h7M8.5 12h7M8.5 15.5h4"/></svg>Rezepte</button>
+  <button data-s="uebergabe"><svg viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5"/><path d="M5 18.5h14"/></svg>Übergabe</button>
+</nav>
+<div class="schleier" id="schleier"><div class="blatt" id="blatt"></div></div>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+const SCHLUESSEL="dokufix-praxis-versuch-v1";
+const ARTEN=[["KG","KG","--a-KG"],["ZNS","KG ZNS","--a-ZNS"],["MT","MT","--a-MT"],["KGG","KGG","--a-KGG"],["MLD","MLD","--a-MLD"]];
+const artName=a=>(ARTEN.find(x=>x[0]===a)||ARTEN[0])[1];
+const artFarbe=a=>"var("+(ARTEN.find(x=>x[0]===a)||ARTEN[0])[2]+")";
+const TAG_START=7*60, TAG_ENDE=19*60;
+const WT=["So","Mo","Di","Mi","Do","Fr","Sa"];
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const id=()=>Math.random().toString(36).slice(2,9);
+function ds(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function pd(s){const [y,m,t]=s.split("-").map(Number);return new Date(y,m-1,t)}
+function plus(s,n){const d=pd(s);d.setDate(d.getDate()+n);return ds(d)}
+function diffTage(a,b){return Math.round((pd(b)-pd(a))/864e5)}
+function kurz(s){const d=pd(s);return WT[d.getDay()]+" "+d.getDate()+"."+(d.getMonth()+1)+"."}
+function min(t){const [h,m]=t.split(":").map(Number);return h*60+m}
+function uhr(m){return String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0")}
+function heute(){return ds(new Date())}
+function montag(s){const d=pd(s);const w=(d.getDay()+6)%7;d.setDate(d.getDate()-w);return ds(d)}
+function werktag(s){let d=pd(s);while(d.getDay()===0||d.getDay()===6)d.setDate(d.getDate()+1);return ds(d)}
+
+/* ---------- Testdaten ---------- */
+function testdaten(){
+  const mo=montag(werktag(heute()));
+  const T=[{id:"b",name:"Bruno"},{id:"l",name:"Lena K."},{id:"m",name:"Murat S."}];
+  const P=[
+    ["Anna M.","Impingement Schulter re.",0],["Jonas B.","Lumbalgie, unspezifisch",0],["Sabine W.","Z. n. VKB-Plastik li.",0],
+    ["Helga R.","Gonarthrose bds.",1],["Peter L.","M. Parkinson",1],["Mia S.","HWS-Syndrom",0],["Karl D.","Z. n. Hüft-TEP re.",0],
+    ["Emine Y.","Lymphödem Arm li.",0],["Thomas F.","Epicondylitis lat. re.",0],["Greta H.","Z. n. Apoplex, Hemiparese re.",1],
+    ["Lukas P.","Sprunggelenksdistorsion re.",0],["Ingrid K.","Osteoporose, BWS-Kyphose",0]
+  ].map(([name,diagnose,hb])=>({id:id(),name,diagnose,hb:!!hb}));
+  const R=[];const Tm=[];
+  const plan=[ // pIndex, art, einheiten, freq/Woche, therapeut, startTagOffset, uhrzeit, dauer, ausgestelltVorMontag, bereitsErschienen
+    [0,"MT",6,2,"b",0,"08:00",20,12,3],[1,"KG",6,2,"b",0,"08:20",20,6,0],[2,"KGG",10,2,"b",1,"08:40",40,20,6],
+    [3,"KG",10,1,"b",0,"10:00",20,9,4],[4,"ZNS",10,2,"b",1,"10:30",30,30,8],[5,"KG",6,2,"l",0,"08:00",20,4,1],
+    [6,"KG",10,2,"l",0,"09:00",20,15,5],[7,"MLD",10,2,"l",1,"10:00",45,10,2],[8,"MT",6,2,"m",0,"08:00",20,26,0],
+    [9,"ZNS",10,2,"m",0,"11:00",30,25,7],[10,"KG",6,2,"m",1,"09:20",20,3,0],[11,"KGG",10,2,"l",2,"14:00",40,8,2]
+  ];
+  for(const [pi,art,ein,freq,tid,off,zeit,dauer,ausg,schon] of plan){
+    // vergangene Termine: rückwärts ab dem Freitag vor dieser Woche, nur Werktage
+    const vorbei=[];let d=plus(mo,-3);
+    for(let k=0;k<schon;k++){vorbei.unshift(d);d=plus(d,pd(d).getDay()===1?-4:pd(d).getDay()===4?-3:-3);while(pd(d).getDay()===0||pd(d).getDay()===6)d=plus(d,-1)}
+    let ausgestellt=plus(mo,-ausg);while(pd(ausgestellt).getDay()===0||pd(ausgestellt).getDay()===6)ausgestellt=plus(ausgestellt,-1);if(vorbei.length&&ausgestellt>plus(vorbei[0],-2))ausgestellt=plus(vorbei[0],-4);
+    const r={id:id(),pid:P[pi].id,art,einheiten:ein,freq,ausgestellt};R.push(r);
+    vorbei.forEach((v,i)=>Tm.push({id:id(),tid,pid:r.pid,rid:r.id,datum:v,start:zeit,dauer,art,status:"erschienen",doku:P[pi].hb?"papier":(i===vorbei.length-1&&pi%3!==1?"offen":"fertig")}));
+    // diese Woche und nächste
+    const tage=freq===1?[off]:freq===2?[off,off+3]:[0,2,4];
+    let rest=ein-schon;
+    for(const w of [0,7]) for(const t of tage){ if(rest<=0||pi===8&&w===7) continue; const d=plus(mo,w+Math.min(t,4)); Tm.push({id:id(),tid,pid:r.pid,rid:r.id,datum:d,start:zeit,dauer,art,status:"geplant"}); rest--; }
+  }
+  // Ein Rezept ohne Termine, Beginn läuft bald ab
+  const neu={id:id(),pid:P[11].id,art:"KG",einheiten:6,freq:2,ausgestellt:plus(heute(),-24)};R.push(neu);
+  Tm.push({id:id(),tid:"l",pid:P[1].id,rid:null,datum:plus(mo,1),start:"15:00",dauer:20,art:"KG",status:"angefragt",quelle:"online"});
+  // einzelne Termine eingestreut
+  Tm.push({id:id(),tid:"b",pid:P[5].id,rid:R[5].id,datum:mo,start:"11:00",dauer:20,art:"KG",status:"geplant"});
+  const neuP=[["Ralf T.","Gonarthrose li."],["Nina O.","Cervicobrachialgie re."],["Udo V.","Z. n. Rotatorenmanschetten-Rekonstruktion li."]].map(([name,diagnose])=>({id:id(),name,diagnose,hb:false}));P.push(...neuP);
+  const W=[{id:id(),pid:neuP[0].id,art:"KG",dauer:20,wunsch:"vormittags",seit:plus(heute(),-6)},{id:id(),pid:neuP[1].id,art:"MT",dauer:20,wunsch:"egal",seit:plus(heute(),-3)},{id:id(),pid:neuP[2].id,art:"KGG",dauer:40,wunsch:"nachmittags",seit:plus(heute(),-1)},{id:id(),pid:P[10].id,art:"KG",dauer:20,wunsch:"vormittags",seit:plus(heute(),-2),notiz:"möchte früher"}];
+  return {therapeuten:T,patienten:P,rezepte:R,termine:Tm,warteliste:W,pausen:{b:"12:30",l:"13:00",m:"12:00"},arbeitszeit:{b:["08:00","16:30"],l:["08:00","16:00"],m:["08:00","15:30"]},fristen:{beginn:28,unterbrechung:14},angelegt:heute()};
+}
+let D;
+function laden(){try{D=JSON.parse(localStorage.getItem(SCHLUESSEL))}catch(e){D=null}if(!D||!D.termine||!D.warteliste)D=testdaten();speichern()}
+function speichern(){try{localStorage.setItem(SCHLUESSEL,JSON.stringify(D))}catch(e){}}
+const P=pid=>D.patienten.find(p=>p.id===pid)||{name:"?",diagnose:""};
+const Th=tid=>D.therapeuten.find(t=>t.id===tid)||{name:"?"};
+
+/* ---------- Rezept-Logik (nur Einheiten und Fristen) ---------- */
+function rezeptStand(r){
+  const ts=D.termine.filter(t=>t.rid===r.id&&t.status!=="abgesagt").sort((a,b)=>(a.datum+a.start).localeCompare(b.datum+b.start));
+  const erschienen=ts.filter(t=>t.status==="erschienen").length;
+  const geplant=ts.filter(t=>t.status==="geplant").length;
+  const offen=Math.max(0,r.einheiten-erschienen-geplant);
+  const hinweise=[];let stufe="o";
+  const h=heute();
+  if(erschienen===0){
+    const erste=ts.find(t=>t.status==="geplant");const frist=plus(r.ausgestellt,D.fristen.beginn);
+    const bezug=erste?erste.datum:h;const rest=diffTage(bezug,frist);
+    if(rest<0){hinweise.push("Beginn nach Frist ("+kurz(frist)+")");stufe="r"}
+    else if(!erste&&rest<=7){hinweise.push("Beginn bis "+kurz(frist)+" – noch keine Termine");stufe="r"}
+    else if(rest<=5){hinweise.push("Beginn knapp: bis "+kurz(frist));stufe=stufe==="r"?"r":"g"}
+  }
+  for(let i=1;i<ts.length;i++){const l=diffTage(ts[i-1].datum,ts[i].datum);if(l>D.fristen.unterbrechung){hinweise.push("Lücke "+l+" Tage vor "+kurz(ts[i].datum));stufe="r";break}}
+  if(offen>0){hinweise.push(offen+(offen===1?" Termin":" Termine")+" noch planen");if(stufe==="o")stufe="g"}
+  const uebrig=r.einheiten-erschienen;
+  if(uebrig<=2&&uebrig>0){hinweise.push("Folgeverordnung anfragen");if(stufe==="o")stufe="g"}
+  if(uebrig<=0){hinweise.push("Abgeschlossen");stufe="n"}
+  return {erschienen,geplant,offen,hinweise,stufe,termine:ts};
+}
+function balken(r,s){const w=n=>(100*n/r.einheiten)+"%";return `<div class="balken"><i style="width:${w(s.erschienen)};background:${artFarbe(r.art)}"></i><i style="width:${w(s.geplant)};background:${artFarbe(r.art)};opacity:.35"></i></div><div class="hinweis">${s.erschienen} von ${r.einheiten} behandelt · ${s.geplant} geplant</div>`}
+const ampelText={r:"Handeln",g:"Bald",o:"Läuft",n:"Fertig"};
+
+/* ---------- Doku-Status ---------- */
+function dokuStand(t){if(t.status!=="erschienen")return null;return t.doku||(P(t.pid).hb?"papier":"offen")}
+const dokuText={offen:"Doku offen",fertig:"Doku fertig",papier:"Auf Papier"};
+function offeneDoku(){return D.termine.filter(t=>dokuStand(t)==="offen").sort((a,b)=>(b.datum+b.start).localeCompare(a.datum+a.start))}
+/* ---------- freie Zeiten ---------- */
+function istFrei(tid,d,start,dauer,ohne){const az=(D.arbeitszeit||{})[tid]||["07:30","18:30"];if(start<min(az[0])||start+dauer>min(az[1]))return false;if(pd(d).getDay()===0||pd(d).getDay()===6)return false;
+  if(D.pausen[tid]&&min(D.pausen[tid])<start+dauer&&start<min(D.pausen[tid])+30)return false;
+  return !D.termine.some(x=>x.id!==ohne&&x.tid===tid&&x.datum===d&&x.status!=="abgesagt"&&min(x.start)<start+dauer&&start<min(x.start)+x.dauer)}
+function ersatz(t){const out=[];const tids=[t.tid,...D.therapeuten.map(x=>x.id).filter(x=>x!==t.tid)];let d=t.datum;
+  for(let i=0;i<10&&out.length<4;i++){d=schritt(d,1);if(d<heute())continue;for(const tid of tids){if(out.length>=4)break;if(out.some(o=>o.datum===d))break;
+    const ziel=min(t.start);let best=null;for(let m=7*60+30;m<=18*60;m+=10){if(istFrei(tid,d,m,t.dauer,t.id)&&(best===null||Math.abs(m-ziel)<Math.abs(best-ziel)))best=m}
+    if(best!==null&&Math.abs(best-ziel)<=120)out.push({tid,datum:d,start:uhr(best)})}}
+  return out}
+function luecke(t){const bel=D.termine.filter(x=>x.id!==t.id&&x.tid===t.tid&&x.datum===t.datum&&x.status!=="abgesagt").map(x=>[min(x.start),min(x.start)+x.dauer]);
+  if(D.pausen[t.tid])bel.push([min(D.pausen[t.tid]),min(D.pausen[t.tid])+30]);const az=(D.arbeitszeit||{})[t.tid]||["07:30","18:30"];
+  let a=min(az[0]),b=min(az[1]);const s0=min(t.start),e0=s0+t.dauer;for(const [x,y] of bel){if(y<=s0&&y>a)a=y;if(x>=e0&&x<b)b=x}return {a:Math.max(a,s0-60),b:Math.min(b,e0+60)}}
+function passtWunsch(w,m){return w==="egal"||(w==="vormittags"?m<12*60:m>=12*60)}
+function kandidaten(t,gap){const out=[];const amTag=new Set(D.termine.filter(x=>x.datum===t.datum&&x.status!=="abgesagt").map(x=>x.pid));
+  for(const w of D.warteliste){if(w.pid===t.pid||amTag.has(w.pid))continue;const m=gap.a;if(w.dauer>gap.b-gap.a||!passtWunsch(w.wunsch,m))continue;
+    out.push({pid:w.pid,art:w.art,dauer:w.dauer,start:m,grund:"Warteliste seit "+Math.max(1,diffTage(w.seit,heute()))+" Tagen"+(w.notiz?" · "+w.notiz:""),wl:w.id,rang:0})}
+  for(const r of D.rezepte){const s=rezeptStand(r);if(r.pid===t.pid||amTag.has(r.pid)||s.offen<=0||s.stufe==="n")continue;const dauer=r.art==="KGG"?40:r.art==="MLD"?45:r.art==="ZNS"?30:20;if(dauer>gap.b-gap.a)continue;
+    out.push({pid:r.pid,art:r.art,dauer,start:gap.a,rid:r.id,grund:s.offen+(s.offen===1?" Termin":" Termine")+" auf dem Rezept noch ungeplant",rang:1})}
+  const ges=new Set();return out.sort((x,y)=>x.rang-y.rang).filter(k=>!ges.has(k.pid)&&ges.add(k.pid)).slice(0,6)}
+
+/* ---------- Zustand ---------- */
+const Z={seite:"kalender",ansicht:"tag",datum:werktag(heute()),therapeut:"b",patient:null,filter:"alle"};
+
+/* ---------- Kopf ---------- */
+function kopf(){
+  const k=$("#kopfLeiste");$("#titel").textContent={kalender:"Kalender",patienten:"Patienten",rezepte:"Rezepte",uebergabe:"Übergabe"}[Z.seite];
+  $("#kopfHinweis").textContent="";
+  if(Z.seite==="kalender"){
+    const lbl=Z.ansicht==="tag"?kurz(Z.datum)+" "+pd(Z.datum).getFullYear():"KW "+kw(Z.datum)+" · "+kurz(montag(Z.datum))+" – "+kurz(plus(montag(Z.datum),4));
+    k.innerHTML=`<div class="seg"><button data-a="tag" class="${Z.ansicht==="tag"?"an":""}">Tag</button><button data-a="woche" class="${Z.ansicht==="woche"?"an":""}">Woche</button></div>
+      <button class="pfeil" data-n="-1">‹</button><span class="datum">${lbl}</span><button class="pfeil" data-n="1">›</button>
+      <button class="knopf leise klein" data-heute>Heute</button>
+      ${Z.ansicht==="woche"?`<select id="thWahl" class="knopf leise klein" style="appearance:none">${D.therapeuten.map(t=>`<option value="${t.id}" ${t.id===Z.therapeut?"selected":""}>${esc(t.name)}</option>`).join("")}</select>`:""}
+      <span style="flex:1"></span><button class="knopf klein" data-neu>+ Termin</button>`;
+    k.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>{Z.ansicht=b.dataset.a;zeichnen()});
+    k.querySelectorAll("[data-n]").forEach(b=>b.onclick=()=>{const n=+b.dataset.n;Z.datum=Z.ansicht==="tag"?schritt(Z.datum,n):plus(montag(Z.datum),7*n);zeichnen()});
+    k.querySelector("[data-heute]").onclick=()=>{Z.datum=werktag(heute());zeichnen()};
+    k.querySelector("[data-neu]").onclick=()=>terminNeu(Z.ansicht==="tag"?"b":Z.therapeut,Z.datum,"08:00");
+    const s=$("#thWahl");if(s)s.onchange=()=>{Z.therapeut=s.value;zeichnen()};
+  }else if(Z.seite==="patienten"){
+    k.innerHTML=`<span class="hinweis">${D.patienten.length} Patienten · Vorname und Anfangsbuchstabe</span><span style="flex:1"></span><button class="knopf klein" id="pNeu">+ Patient</button>`;
+    $("#pNeu").onclick=patientNeu;
+  }else if(Z.seite==="rezepte"){
+    const n=D.rezepte.filter(r=>["r","g"].includes(rezeptStand(r).stufe)).length;
+    k.innerHTML=`<div class="seg"><button data-f="alle" class="${Z.filter==="alle"?"an":""}">Alle</button><button data-f="handeln" class="${Z.filter==="handeln"?"an":""}">Handlungsbedarf (${n})</button><button data-f="warte" class="${Z.filter==="warte"?"an":""}">Warteliste (${D.warteliste.length})</button></div><span style="flex:1"></span>${Z.filter==="warte"?`<button class="knopf klein" id="wNeu">+ Warteliste</button>`:`<button class="knopf klein" id="rNeu">+ Rezept</button>`}`;
+    k.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{Z.filter=b.dataset.f;zeichnen()});
+    if($("#rNeu"))$("#rNeu").onclick=()=>rezeptNeu();if($("#wNeu"))$("#wNeu").onclick=()=>warteNeu();
+  }else k.innerHTML=`<span class="hinweis">Was in die gekaufte Praxissoftware wandert</span>`;
+}
+function schritt(s,n){let d=plus(s,n);while(pd(d).getDay()===0||pd(d).getDay()===6)d=plus(d,n);return d}
+function kw(s){const d=pd(s);d.setDate(d.getDate()+3-(d.getDay()+6)%7);const j=new Date(d.getFullYear(),0,4);return 1+Math.round(((d-j)/864e5-3+(j.getDay()+6)%7)/7)}
+
+/* ---------- Kalender ---------- */
+function kalender(){
+  $("#legende").innerHTML=ARTEN.map(a=>`<span><i style="background:var(${a[2]})"></i>${a[1]}</span>`).join("")+`<span><i style="background:repeating-linear-gradient(135deg,#888 0 3px,#ccc 3px 6px)"></i>Hausbesuch</span><span>Doku offen / ✓ Doku / Papier am Termin</span><span>gestrichelt = online angefragt</span>`;
+  const ppm=1.6,hoehe=(TAG_ENDE-TAG_START)*ppm;
+  let spalten;
+  if(Z.ansicht==="tag") spalten=D.therapeuten.map(t=>({tid:t.id,datum:Z.datum,kopf:esc(t.name),unter:zaehl(t.id,Z.datum)}));
+  else {const mo=montag(Z.datum);spalten=[0,1,2,3,4].map(i=>{const d=plus(mo,i);return{tid:Z.therapeut,datum:d,kopf:kurz(d),unter:zaehl(Z.therapeut,d)}})}
+  let h=`<div class="kal" style="grid-template-columns:48px repeat(${spalten.length},1fr)"><div class="kal-kopf"><div></div>${spalten.map(s=>`<div class="${s.datum===heute()&&Z.ansicht==="woche"?"heute":""}">${s.kopf}<small>${s.unter}</small></div>`).join("")}</div>`;
+  h+=`<div class="zeiten" style="height:${hoehe}px">`;for(let m=TAG_START+60;m<TAG_ENDE;m+=60)h+=`<span style="top:${(m-TAG_START)*ppm}px">${uhr(m)}</span>`;h+=`</div>`;
+  for(const s of spalten){
+    h+=`<div class="spalte" data-tid="${s.tid}" data-datum="${s.datum}" style="height:${hoehe}px">`;
+    for(let m=TAG_START;m<TAG_ENDE;m+=30)h+=`<div class="std ${m%60?"halb":""}" style="top:${(m-TAG_START)*ppm}px"></div>`;
+    const pz=D.pausen[s.tid];if(pz)h+=`<div class="pause" style="top:${(min(pz)-TAG_START)*ppm}px;height:${30*ppm-2}px">Pause</div>`;
+    for(const t of D.termine.filter(t=>t.tid===s.tid&&t.datum===s.datum)){
+      const p=P(t.pid),r=D.rezepte.find(r=>r.id===t.rid);const nr=r?rezeptStand(r).termine.findIndex(x=>x.id===t.id)+1:0;
+      h+=`<div class="termin ${t.status} ${p.hb?"hb":""}" data-id="${t.id}" style="top:${(min(t.start)-TAG_START)*ppm+1}px;height:${t.dauer*ppm-2}px;background:${artFarbe(t.art)}"><b>${esc(p.name)}</b> ${t.dauer>=25?"<br>":""}${uhr(min(t.start))} · ${artName(t.art)}${r&&nr?` · ${nr}/${r.einheiten}`:""}${p.hb?" · HB":""}${(()=>{const ds=dokuStand(t);return ds?`<span class="dk ${ds==="fertig"?"f":ds==="papier"?"p":""}">${ds==="fertig"?"✓ Doku":ds==="papier"?"Papier":"Doku offen"}</span>`:""})()}</div>`;
+    }
+    if(s.datum===heute()){const n=new Date();const m=n.getHours()*60+n.getMinutes();if(m>TAG_START&&m<TAG_ENDE)h+=`<div class="jetzt" style="top:${(m-TAG_START)*ppm}px"></div>`}
+    h+=`</div>`;
+  }
+  h+=`</div>`;
+  const od=offeneDoku();
+  const leiste=(od.length?`<div class="offenleiste" id="odLeiste"><b>${od.length} Doku offen</b><span>aus vergangenen Terminen, tippen zum Abarbeiten</span><span style="margin-left:auto">›</span></div>`:"")
+    +(Z.ansicht==="tag"?`<div class="zeile" style="margin:0 0 10px"><span class="hinweis">Termin gedrückt halten und ziehen zum Verschieben · Tagesplan an Doku-Fix:</span>${D.therapeuten.map(t=>`<button class="knopf leise klein" data-df="${t.id}">${esc(t.name)}</button>`).join("")}</div>`:"");
+  $("#kalender").innerHTML=leiste+h;
+  const ol=$("#odLeiste");if(ol)ol.onclick=dokuListe;
+  $("#kalender").querySelectorAll("[data-df]").forEach(b=>b.onclick=()=>anDokuFix(b.dataset.df,Z.datum));
+  $("#kalender").querySelectorAll(".spalte").forEach(sp=>sp.onclick=e=>{
+    if(e.target.closest(".termin"))return;
+    const y=e.clientY-sp.getBoundingClientRect().top;let m=TAG_START+Math.floor(y/ppm/10)*10;
+    terminNeu(sp.dataset.tid,sp.dataset.datum,uhr(m));
+  });
+  $("#kalender").querySelectorAll(".termin").forEach(el=>{el.onclick=()=>{if(Zieh.eben){Zieh.eben=false;return}terminDetail(el.dataset.id)};el.addEventListener("pointerdown",e=>ziehStart(e,el))});
+}
+function zaehl(tid,d){const n=D.termine.filter(t=>t.tid===tid&&t.datum===d&&t.status!=="abgesagt").length;return n?n+" Termine":"frei"}
+
+/* ---------- Verschieben mit dem Finger ---------- */
+const Zieh={an:false,eben:false};
+document.addEventListener("touchmove",e=>{if(Zieh.an)e.preventDefault()},{passive:false});
+function ziehStart(e,el){if(e.button>0)return;const t=D.termine.find(x=>x.id===el.dataset.id);if(!t||t.status==="abgesagt")return;
+  const x0=e.clientX,y0=e.clientY,r=el.getBoundingClientRect(),dy=y0-r.top;let geist=null,ziel=null;
+  const timer=setTimeout(()=>{Zieh.an=true;el.classList.add("zieht");geist=document.createElement("div");geist.className="geist";geist.style.cssText+=`left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;background:${artFarbe(t.art)}`;geist.innerHTML=`<b>${esc(P(t.pid).name)}</b><small>${t.start}</small>`;document.body.appendChild(geist);if(navigator.vibrate)try{navigator.vibrate(10)}catch(_){}},280);
+  const zug=ev=>{if(!Zieh.an){if(Math.hypot(ev.clientX-x0,ev.clientY-y0)>8){clearTimeout(timer);ende()}return}
+    ev.preventDefault();geist.style.left=(ev.clientX-r.width/2)+"px";geist.style.top=(ev.clientY-dy)+"px";
+    const sp=document.elementsFromPoint(ev.clientX,ev.clientY).find(n=>n.classList&&n.classList.contains("spalte"));
+    document.querySelectorAll(".spalte.ziel").forEach(n=>n.classList.remove("ziel"));ziel=null;
+    if(sp){sp.classList.add("ziel");const top=ev.clientY-dy-sp.getBoundingClientRect().top;const m=Math.max(TAG_START,Math.min(TAG_ENDE-t.dauer,TAG_START+Math.round(top/1.6/10)*10));ziel={tid:sp.dataset.tid,datum:sp.dataset.datum,start:m};geist.querySelector("small").textContent=uhr(m)+(sp.dataset.tid!==t.tid?" · "+Th(sp.dataset.tid).name:"")+(sp.dataset.datum!==t.datum?" · "+kurz(sp.dataset.datum):"")}};
+  const los=()=>{clearTimeout(timer);if(Zieh.an){Zieh.an=false;Zieh.eben=true;setTimeout(()=>Zieh.eben=false,350);if(geist)geist.remove();el.classList.remove("zieht");document.querySelectorAll(".spalte.ziel").forEach(n=>n.classList.remove("ziel"));if(ziel)verschiebe(t,ziel)}ende()};
+  function ende(){removeEventListener("pointermove",zug);removeEventListener("pointerup",los);removeEventListener("pointercancel",los)}
+  addEventListener("pointermove",zug,{passive:false});addEventListener("pointerup",los);addEventListener("pointercancel",los);
+}
+function verschiebe(t,z){if(z.tid===t.tid&&z.datum===t.datum&&uhr(z.start)===t.start)return;
+  if(!istFrei(z.tid,z.datum,z.start,t.dauer,t.id)){toast("Da ist schon belegt");return}
+  const alt={tid:t.tid,datum:t.datum,start:t.start};const tage=diffTage(t.datum,z.datum),dm=z.start-min(t.start);
+  const folgende=t.rid?D.termine.filter(x=>x.rid===t.rid&&x.id!==t.id&&x.status==="geplant"&&x.datum>t.datum):[];
+  const nur=()=>{Object.assign(t,{tid:z.tid,datum:z.datum,start:uhr(z.start)});speichern();zeichnen();toast(`${P(t.pid).name}: ${kurz(t.datum)} ${t.start}`+(z.tid!==alt.tid?" bei "+Th(z.tid).name:""))};
+  if(!folgende.length){nur();return}
+  blatt("Verschieben",`<div class="feld" style="padding:12px 14px"><b>${esc(P(t.pid).name)}</b><div class="hinweis">${kurz(alt.datum)} ${alt.start} → ${kurz(z.datum)} ${uhr(z.start)}${z.tid!==alt.tid?" · "+esc(Th(z.tid).name):""}</div></div>
+  <div class="feld"><div class="vorschlag"><div style="flex:1"><b>Nur diesen Termin</b></div><button class="knopf klein" id="vNur">Verschieben</button></div>
+  <div class="vorschlag"><div style="flex:1"><b>Diesen und ${folgende.length} folgende</b><div class="unter">Alle um ${tage?Math.abs(tage)+(Math.abs(tage)===1?" Tag ":" Tage ")+(tage>0?"später":"früher"):"denselben Tag"}${dm?", "+(dm>0?"+":"")+dm+" min":""}${z.tid!==alt.tid?", zu "+esc(Th(z.tid).name):""}</div></div><button class="knopf klein" id="vAlle">Serie</button></div></div>`,null);
+  $("#vNur").onclick=()=>{zu();nur()};
+  $("#vAlle").onclick=()=>{zu();let ok=0,nein=0;
+    for(const x of [t,...folgende]){let d=x===t?z.datum:werktag(plus(x.datum,tage));const s0=x===t?z.start:min(x.start)+dm;
+      if(istFrei(z.tid,d,s0,x.dauer,x.id)){Object.assign(x,{tid:z.tid,datum:d,start:uhr(s0)});ok++}else nein++}
+    speichern();zeichnen();toast(ok+" verschoben"+(nein?" · "+nein+" blieben (belegt)":""))};
+}
+/* ---------- Online-Buchung (Muster) ---------- */
+function buchung(){const B={art:"KG",tid:"egal",tag:null,zeit:null};const pats=[...D.patienten].sort((a,b)=>a.name.localeCompare(b.name));
+  const tage=[];let d=heute();while(tage.length<8){d=schritt(d,1);tage.push(d)}B.tag=tage[0];
+  const zeiten=()=>{const out=[];const ths=B.tid==="egal"?D.therapeuten.map(t=>t.id):[B.tid];const dau=B.art==="KGG"?40:B.art==="MLD"?45:B.art==="ZNS"?30:20;
+    for(let m=7*60+30;m<=18*60;m+=10){const tid=ths.find(x=>istFrei(x,B.tag,m,dau));if(tid&&!out.some(o=>Math.abs(o.m-m)<30))out.push({m,tid,dau})}return out};
+  const male=()=>{const z=zeiten();$("#bInhalt").innerHTML=`
+    <div class="bschritt"><div>Was brauchst du?</div><div class="chips">${ARTEN.map(a=>`<button data-ba="${a[0]}" class="${B.art===a[0]?"an":""}">${a[1]}</button>`).join("")}</div></div>
+    <div class="bschritt"><div>Bei wem?</div><div class="chips"><button data-bt="egal" class="${B.tid==="egal"?"an":""}">Egal</button>${D.therapeuten.map(t=>`<button data-bt="${t.id}" class="${B.tid===t.id?"an":""}">${esc(t.name)}</button>`).join("")}</div></div>
+    <div class="bschritt"><div>Tag</div><div class="chips">${tage.map(t=>`<button data-bd="${t}" class="${B.tag===t?"an":""}">${kurz(t)}</button>`).join("")}</div></div>
+    <div class="bschritt"><div>Freie Zeiten</div><div class="chips">${z.map((o,i)=>`<button data-bz="${i}" class="${B.zeit&&B.zeit.m===o.m?"an":""}">${uhr(o.m)}</button>`).join("")||'<span class="hinweis">An diesem Tag ist nichts frei</span>'}</div></div>
+    <div class="bschritt"><div>Wer bist du?</div><select id="bWer" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--rahmen);background:#fff">${pats.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join("")}</select>
+      <div class="hinweis" style="margin-top:6px">Im Muster wählst du einen Testpatienten. Echt wären es Name und Telefon, sonst nichts.</div></div>
+    <div style="padding:12px 16px 16px"><button class="knopf" id="bLos" style="width:100%" ${B.zeit?"":"disabled"}>${B.zeit?"Termin anfragen: "+kurz(B.tag)+" "+uhr(B.zeit.m):"Zeit wählen"}</button></div>`;
+    $("#bInhalt").querySelectorAll("[data-ba]").forEach(b=>b.onclick=()=>{B.art=b.dataset.ba;B.zeit=null;male()});
+    $("#bInhalt").querySelectorAll("[data-bt]").forEach(b=>b.onclick=()=>{B.tid=b.dataset.bt;B.zeit=null;male()});
+    $("#bInhalt").querySelectorAll("[data-bd]").forEach(b=>b.onclick=()=>{B.tag=b.dataset.bd;B.zeit=null;male()});
+    $("#bInhalt").querySelectorAll("[data-bz]").forEach(b=>b.onclick=()=>{B.zeit=z[+b.dataset.bz];male()});
+    $("#bLos").onclick=()=>{if(!B.zeit)return;const pid=$("#bWer").value;const rid=(D.rezepte.find(r=>r.pid===pid&&r.art===B.art&&rezeptStand(r).offen>0)||{}).id||null;
+      D.termine.push({id:id(),tid:B.zeit.tid,pid,rid,datum:B.tag,start:uhr(B.zeit.m),dauer:B.zeit.dau,art:B.art,status:"angefragt",quelle:"online"});speichern();zeichnen();
+      $("#bInhalt").innerHTML=`<div class="bschritt" style="text-align:center;padding:28px 16px"><b style="font-size:18px">Anfrage ist da</b><p class="hinweis">Die Praxis bestätigt den Termin. Bis dahin ist er für dich reserviert.</p><button class="knopf leise" id="bNochmal">Noch einen Termin</button></div>`;
+      $("#bNochmal").onclick=()=>{B.zeit=null;male()}}};
+  blatt("Online-Buchung (Muster)",`<div class="handy"><div class="bkopf"><b>Termin buchen</b><span>Physiotherapie · Muster ohne Server</span></div><div id="bInhalt"></div></div>
+  <p class="hinweis" style="margin:0 20px">Angefragte Termine erscheinen gestrichelt im Kalender und werden dort bestätigt. Für echte Buchungen bräuchte es einen Server mit EU-Hosting, einen Vertrag zur Auftragsverarbeitung und die Regeln der Datenschutzkonferenz von 2025: nur nötige Daten, Erinnerungen nur mit Einwilligung, Telefon als Alternative.</p>`,null);
+  male();
+}
+/* ---------- Blatt ---------- */
+function blatt(titel,inhalt,fertig,fertigText="Fertig"){
+  $("#blatt").innerHTML=`<div class="blatt-kopf"><button class="knopf leise klein" data-zu>Abbrechen</button><b>${titel}</b>${fertig?`<button class="knopf klein" data-ok>${fertigText}</button>`:`<span style="width:70px"></span>`}</div>${inhalt}`;
+  $("#schleier").classList.add("an");
+  $("#blatt").querySelector("[data-zu]").onclick=zu;
+  if(fertig)$("#blatt").querySelector("[data-ok]").onclick=()=>{if(fertig()!==false)zu()};
+}
+function zu(){$("#schleier").classList.remove("an")}
+$("#schleier").onclick=e=>{if(e.target.id==="schleier")zu()};
+function kacheln(name,liste,wert){return `<div class="kacheln" data-k="${name}">${liste.map(([v,l])=>`<button type="button" data-v="${v}" class="${String(v)===String(wert)?"an":""}">${l}</button>`).join("")}</div>`}
+function kachelWert(name){const b=$("#blatt").querySelector(`[data-k="${name}"] .an`);return b?b.dataset.v:null}
+function kachelnAktiv(cb){$("#blatt").querySelectorAll(".kacheln").forEach(g=>g.querySelectorAll("button").forEach(b=>b.onclick=()=>{g.querySelectorAll("button").forEach(x=>x.classList.remove("an"));b.classList.add("an");cb&&cb()}))}
+function toast(t){const e=$("#toast");e.textContent=t;e.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display="none",2600)}
+
+/* ---------- Termin anlegen mit Serie ---------- */
+function terminNeu(tid,datum,start,pidVor){
+  const pats=[...D.patienten].sort((a,b)=>a.name.localeCompare(b.name));
+  const pid0=pidVor||pats[0].id;
+  blatt("Neuer Termin",`
+  <div class="feld">
+    <label><span>Patient</span><select id="fP">${pats.map(p=>`<option value="${p.id}" ${p.id===pid0?"selected":""}>${esc(p.name)}</option>`).join("")}</select></label>
+    <label><span>Rezept</span><select id="fR"></select></label>
+    <label><span>Therapeut</span><select id="fT">${D.therapeuten.map(t=>`<option value="${t.id}" ${t.id===tid?"selected":""}>${esc(t.name)}</option>`).join("")}</select></label>
+    <label><span>Datum</span><input type="date" id="fD" value="${datum}"></label>
+    <label><span>Beginn</span><input type="time" id="fZ" value="${start}" step="600"></label>
+    <label><span>Dauer</span>${kacheln("dauer",[[20,"20"],[30,"30"],[40,"40"],[45,"45"],[60,"60"]],20)}</label>
+    <label><span>Art</span>${kacheln("art",ARTEN.map(a=>[a[0],a[1]]),"KG")}</label>
+  </div>
+  <div class="feld">
+    <label><span>Serie</span>${kacheln("serie",[[0,"Einzeln"],[1,"Rest des Rezepts"]],1)}</label>
+    <label><span>Rhythmus</span>${kacheln("freq",[[1,"1× / Wo"],[2,"2× / Wo"],[3,"3× / Wo"]],2)}</label>
+  </div>
+  <div class="vorschau" id="vorschau"></div>`,()=>{
+    const v=vorschlag();const neu=v.filter(x=>!x.konflikt);
+    neu.forEach(x=>D.termine.push({id:id(),tid:$("#fT").value,pid:$("#fP").value,rid:$("#fR").value||null,datum:x.datum,start:$("#fZ").value,dauer:+kachelWert("dauer"),art:kachelWert("art"),status:"geplant"}));
+    speichern();zeichnen();toast(neu.length+(neu.length===1?" Termin":" Termine")+" angelegt"+(v.length>neu.length?" · "+(v.length-neu.length)+" übersprungen (belegt)":""));
+  },"Anlegen");
+  const rezepteFuer=()=>{const pid=$("#fP").value;const rs=D.rezepte.filter(r=>r.pid===pid&&rezeptStand(r).stufe!=="n");
+    $("#fR").innerHTML=rs.map(r=>{const s=rezeptStand(r);return `<option value="${r.id}">${artName(r.art)} · ${s.offen} offen</option>`}).join("")+`<option value="">ohne Rezept (Privat/Selbstzahler)</option>`;
+    const r=rs[0];if(r){setKachel("art",r.art);setKachel("freq",r.freq)}};
+  const setKachel=(n,v)=>{$("#blatt").querySelectorAll(`[data-k="${n}"] button`).forEach(b=>b.classList.toggle("an",b.dataset.v===String(v)))};
+  function vorschlag(){
+    const rid=$("#fR").value,r=D.rezepte.find(x=>x.id===rid);const serie=kachelWert("serie")==="1"&&r;
+    let n=serie?Math.max(1,rezeptStand(r).offen):1;const freq=+kachelWert("freq");
+    const abst=freq===1?[7]:freq===2?[3,4]:[2,2,3];
+    const t=$("#fT").value,z=min($("#fZ").value),dau=+kachelWert("dauer");
+    const out=[];let d=$("#fD").value;
+    for(let i=0;i<n;i++){
+      if(i>0)d=werktag(plus(d,abst[(i-1)%abst.length]));
+      const konflikt=D.termine.some(x=>x.tid===t&&x.datum===d&&x.status!=="abgesagt"&&min(x.start)<z+dau&&z<min(x.start)+x.dauer)||(D.pausen[t]&&min(D.pausen[t])<z+dau&&z<min(D.pausen[t])+30);
+      out.push({datum:d,konflikt});
+    }
+    return out;
+  }
+  const zeig=()=>{const v=vorschlag();$("#vorschau").innerHTML=`<div class="hinweis">Vorschau (${v.length}):</div>`+v.map(x=>`<div class="${x.konflikt?"konflikt":""}">${kurz(x.datum)} ${$("#fZ").value}${x.konflikt?" · belegt, wird übersprungen":""}</div>`).join("")};
+  $("#fP").onchange=()=>{rezepteFuer();zeig()};["#fR","#fT","#fD","#fZ"].forEach(s=>$(s).onchange=zeig);
+  kachelnAktiv(zeig);rezepteFuer();zeig();
+}
+
+/* ---------- Termin ansehen ---------- */
+function terminDetail(tidId){
+  const t=D.termine.find(x=>x.id===tidId);if(!t)return;const p=P(t.pid),r=D.rezepte.find(x=>x.id===t.rid);const s=r&&rezeptStand(r);
+  blatt(esc(p.name),`
+  <div class="feld"><label><span>Termin</span><div style="margin-left:auto">${kurz(t.datum)} · ${t.start} · ${t.dauer} min</div></label>
+  <label><span>Therapeut</span><div style="margin-left:auto">${esc(Th(t.tid).name)}</div></label>
+  <label><span>Art</span><div style="margin-left:auto"><span class="kuerzel" style="background:${artFarbe(t.art)}">${artName(t.art)}</span>${p.hb?" · Hausbesuch":""}</div></label>
+  <label><span>Diagnose</span><div style="margin-left:auto;text-align:right">${esc(p.diagnose)}</div></label></div>
+  ${r?`<div class="feld" style="padding:12px 14px"><div class="zeile"><b>Rezept ${artName(r.art)}</b><span class="ampel ${s.stufe}" style="margin-left:auto">${ampelText[s.stufe]}</span></div>${balken(r,s)}<div class="hinweis">${s.hinweise.join(" · ")}</div></div>`:""}
+  <div class="feld"><label><span>Status</span>${kacheln("status",[["geplant","Geplant"],["erschienen","Erschienen"],["abgesagt","Abgesagt"],["nicht","Nicht da"]],t.status)}</label>
+  <label id="dkZeile" style="${t.status==="erschienen"?"":"display:none"}"><span>Doku</span>${kacheln("doku",[["offen","Offen"],["fertig","Fertig"],["papier","Auf Papier"]],dokuStand(t)||"offen")}</label></div>
+  <p class="hinweis" style="margin:0 20px 12px" id="dkHinweis">${t.status==="abgesagt"||t.status==="nicht"?"Die Lücke kannst du gleich füllen.":"Bei Absage schlägt die App einen Ersatztermin und Patienten für die Lücke vor."}</p>
+  ${t.status==="angefragt"?`<div class="feld" style="padding:12px 14px;border:1.5px dashed var(--tape)"><b>Online angefragt</b><div class="hinweis">Bestätigen macht daraus einen festen Termin.</div><div class="knopfreihe"><button class="knopf" id="tOk">Bestätigen</button><button class="knopf rot" id="tAb">Ablehnen</button></div></div>`:""}
+  <div style="margin:0 16px" class="knopfreihe"><a class="knopf leise" href="https://8gcbdy8y5g-cyber.github.io/Doku-fix/" target="_blank" rel="noopener" style="text-decoration:none">In Doku-Fix dokumentieren</a><button class="knopf leise" id="tFolge">Folgetermin</button><button class="knopf rot" id="tWeg">Löschen</button></div>`,
+  ()=>{const alt=t.status;if(alt==="angefragt"&&kachelWert("status")==="geplant")return;t.status=kachelWert("status");if(t.status==="erschienen")t.doku=kachelWert("doku");else delete t.doku;speichern();zeichnen();
+    if((t.status==="abgesagt"||t.status==="nicht")&&alt!==t.status)setTimeout(()=>lueckeBlatt(t),80)},"Sichern");
+  kachelnAktiv(()=>{$("#dkZeile").style.display=kachelWert("status")==="erschienen"?"":"none"});
+  if($("#tOk")){$("#tOk").onclick=()=>{t.status="geplant";speichern();zu();zeichnen();toast("Termin bestätigt")};$("#tAb").onclick=()=>{D.termine=D.termine.filter(x=>x.id!==t.id);speichern();zu();zeichnen();toast("Anfrage abgelehnt")}}
+  $("#tWeg").onclick=()=>{D.termine=D.termine.filter(x=>x.id!==t.id);speichern();zu();zeichnen();toast("Termin gelöscht")};
+  $("#tFolge").onclick=()=>{zu();setTimeout(()=>terminNeu(t.tid,werktag(plus(t.datum,3)),t.start,t.pid),60)};
+}
+
+/* ---------- Patienten ---------- */
+function patienten(){
+  const q=($("#pSuche").value||"").toLowerCase();
+  const ps=[...D.patienten].filter(p=>(p.name+" "+p.diagnose).toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
+  if(!Z.patient||!D.patienten.some(p=>p.id===Z.patient))Z.patient=ps[0]&&ps[0].id;
+  $("#pListe").innerHTML=ps.map(p=>{const n=naechster(p.id);const st=D.rezepte.filter(r=>r.pid===p.id).map(rezeptStand).map(s=>s.stufe);const sf=st.includes("r")?"r":st.includes("g")?"g":st.length?"o":"n";
+    return `<div class="eintrag ${p.id===Z.patient?"an":""}" data-p="${p.id}"><div><div class="titel">${esc(p.name)}${p.hb?' <span class="ampel n">HB</span>':""}</div><div class="unter">${esc(p.diagnose)}</div></div><div class="rechts"><span class="ampel ${sf}">${ampelText[sf]}</span><br>${n?kurz(n.datum)+" "+n.start:"kein Termin"}</div></div>`}).join("")||`<div class="leer">Niemand gefunden</div>`;
+  $("#pListe").querySelectorAll("[data-p]").forEach(e=>e.onclick=()=>{Z.patient=e.dataset.p;patienten();if(innerWidth<760)$("#pDetail").scrollIntoView({behavior:"smooth"})});
+  const p=D.patienten.find(x=>x.id===Z.patient);
+  if(!p){$("#pDetail").innerHTML=`<div class="leer">Kein Patient gewählt</div>`;return}
+  const rs=D.rezepte.filter(r=>r.pid===p.id);const ts=D.termine.filter(t=>t.pid===p.id).sort((a,b)=>(a.datum+a.start).localeCompare(b.datum+b.start));
+  const kommend=ts.filter(t=>t.datum>=heute()&&t.status==="geplant"),vorbei=ts.filter(t=>t.datum<heute()||t.status!=="geplant").reverse();
+  $("#pDetail").innerHTML=`<div class="detail"><div class="zeile"><h2>${esc(p.name)}</h2><span style="flex:1"></span><button class="knopf leise klein" id="pBearb">Bearbeiten</button></div>
+    <div class="hinweis">${esc(p.diagnose)}${p.hb?" · Hausbesuch":""}</div>
+    <div class="knopfreihe"><button class="knopf klein" id="pTermin">+ Termin</button><button class="knopf leise klein" id="pRezept">+ Rezept</button><button class="knopf leise klein" id="pWarte">${D.warteliste.some(w=>w.pid===p.id)?"Auf Warteliste ✓":"Auf Warteliste"}</button><a class="knopf leise klein" style="text-decoration:none" href="https://8gcbdy8y5g-cyber.github.io/Doku-fix/" target="_blank" rel="noopener">Doku in Doku-Fix</a></div>
+    <h3>Rezepte</h3>${rs.length?rs.map(r=>{const s=rezeptStand(r);return `<div class="box" style="background:var(--grund)"><div class="zeile"><span class="kuerzel" style="background:${artFarbe(r.art)}">${artName(r.art)}</span><span>${r.einheiten} × · ${r.freq}× pro Woche · ausgestellt ${kurz(r.ausgestellt)}</span><span class="ampel ${s.stufe}" style="margin-left:auto">${ampelText[s.stufe]}</span></div>${balken(r,s)}<div class="hinweis">${s.hinweise.join(" · ")}</div></div>`}).join(""):`<div class="hinweis">Kein Rezept</div>`}
+    <h3>Nächste Termine</h3>${kommend.length?kommend.map(t=>`<div class="eintrag" style="padding:6px 0;border:0;display:flex;gap:10px"><span class="kuerzel" style="background:${artFarbe(t.art)}">${artName(t.art)}</span>${kurz(t.datum)} ${t.start} · ${t.dauer} min · ${esc(Th(t.tid).name)}</div>`).join(""):`<div class="hinweis">Keine geplant</div>`}
+    <h3>Bisher</h3>${vorbei.length?vorbei.slice(0,8).map(t=>`<div class="hinweis" style="padding:3px 0">${kurz(t.datum)} ${t.start} · ${artName(t.art)} · ${{erschienen:"erschienen",abgesagt:"abgesagt",nicht:"nicht erschienen",geplant:"geplant"}[t.status]}</div>`).join(""):`<div class="hinweis">Noch nichts</div>`}
+  </div>`;
+  $("#pTermin").onclick=()=>terminNeu("b",werktag(heute()),"08:00",p.id);
+  $("#pRezept").onclick=()=>rezeptNeu(p.id);
+  $("#pBearb").onclick=()=>patientNeu(p);
+  $("#pWarte").onclick=()=>warteNeu(p.id);
+}
+function naechster(pid){return D.termine.filter(t=>t.pid===pid&&t.status==="geplant"&&t.datum>=heute()).sort((a,b)=>(a.datum+a.start).localeCompare(b.datum+b.start))[0]}
+function patientNeu(alt){
+  const p=alt&&alt.id?alt:null;
+  blatt(p?"Patient bearbeiten":"Neuer Patient",`<div class="feld">
+    <label><span>Name</span><input id="nN" placeholder="Vorname N." value="${p?esc(p.name):""}"></label>
+    <label><span>Diagnose</span><input id="nD" placeholder="z. B. Lumbalgie" value="${p?esc(p.diagnose):""}"></label>
+    <label><span>Hausbesuch</span><input type="checkbox" id="nH" ${p&&p.hb?"checked":""}></label></div>
+    <p class="hinweis" style="margin:0 20px">Nur Vorname und Anfangsbuchstabe. Volle Stammdaten (Adresse, Kasse, Versichertennummer) gehören in die Praxissoftware.</p>`,()=>{
+    const name=$("#nN").value.trim();if(!name){toast("Bitte einen Namen eintragen");return false}
+    if(p){p.name=name;p.diagnose=$("#nD").value.trim();p.hb=$("#nH").checked}
+    else{const n={id:id(),name,diagnose:$("#nD").value.trim(),hb:$("#nH").checked};D.patienten.push(n);Z.patient=n.id}
+    speichern();zeichnen();
+  },p?"Sichern":"Anlegen");
+}
+/* ---------- Rezepte ---------- */
+function rezepte(){
+  if(Z.filter==="warte"){const ws=[...D.warteliste].sort((a,b)=>a.seit.localeCompare(b.seit));
+    $("#rListe").innerHTML=ws.map(w=>`<div class="eintrag"><span class="kuerzel" style="background:${artFarbe(w.art)}">${artName(w.art)}</span><div style="flex:1"><div class="titel">${esc(P(w.pid).name)}</div><div class="unter">${w.dauer} min · ${w.wunsch} · seit ${kurz(w.seit)}${w.notiz?" · "+esc(w.notiz):""}</div></div><button class="knopf leise klein" data-wt="${w.id}">Termin suchen</button><button class="knopf rot klein" data-wx="${w.id}">Entfernen</button></div>`).join("")||`<div class="leer">Niemand wartet</div>`;
+    $("#rListe").querySelectorAll("[data-wx]").forEach(b=>b.onclick=()=>{D.warteliste=D.warteliste.filter(w=>w.id!==b.dataset.wx);speichern();zeichnen()});
+    $("#rListe").querySelectorAll("[data-wt]").forEach(b=>b.onclick=()=>{const w=D.warteliste.find(x=>x.id===b.dataset.wt);terminSuche(w)});
+    return}
+  const ord={r:0,g:1,o:2,n:3};
+  let rs=D.rezepte.map(r=>({r,s:rezeptStand(r)})).sort((a,b)=>ord[a.s.stufe]-ord[b.s.stufe]||a.s.offen-b.s.offen);
+  if(Z.filter==="handeln")rs=rs.filter(x=>["r","g"].includes(x.s.stufe));
+  $("#rListe").innerHTML=rs.map(({r,s})=>`<div class="eintrag" data-p="${r.pid}" style="align-items:flex-start"><span class="kuerzel" style="background:${artFarbe(r.art)};margin-top:2px">${artName(r.art)}</span><div style="flex:1;min-width:0"><div class="zeile"><span class="titel">${esc(P(r.pid).name)}</span><span class="unter">${r.einheiten} × · ${r.freq}×/Wo · vom ${kurz(r.ausgestellt)}</span><span class="ampel ${s.stufe}" style="margin-left:auto">${ampelText[s.stufe]}</span></div>${balken(r,s)}<div class="unter">${s.hinweise.join(" · ")}</div></div></div>`).join("")||`<div class="leer">Nichts zu tun</div>`;
+  $("#rListe").querySelectorAll("[data-p]").forEach(e=>e.onclick=()=>{Z.patient=e.dataset.p;wechsel("patienten")});
+}
+function rezeptNeu(pid){
+  const pats=[...D.patienten].sort((a,b)=>a.name.localeCompare(b.name));
+  blatt("Neues Rezept",`<div class="feld">
+    <label><span>Patient</span><select id="rP">${pats.map(p=>`<option value="${p.id}" ${p.id===pid?"selected":""}>${esc(p.name)}</option>`).join("")}</select></label>
+    <label><span>Heilmittel</span>${kacheln("art",ARTEN.map(a=>[a[0],a[1]]),"KG")}</label>
+    <label><span>Einheiten</span>${kacheln("ein",[[6,"6"],[8,"8"],[10,"10"],[12,"12"]],6)}</label>
+    <label><span>Frequenz</span>${kacheln("freq",[[1,"1×"],[2,"2×"],[3,"3×"]],2)}</label>
+    <label><span>Ausgestellt</span><input type="date" id="rA" value="${heute()}"></label></div>
+    <p class="hinweis" style="margin:0 20px">Danach kannst du direkt alle Termine als Serie planen.</p>`,()=>{
+    const r={id:id(),pid:$("#rP").value,art:kachelWert("art"),einheiten:+kachelWert("ein"),freq:+kachelWert("freq"),ausgestellt:$("#rA").value};
+    D.rezepte.push(r);speichern();zeichnen();setTimeout(()=>terminNeu("b",werktag(heute()),"08:00",r.pid),80);
+  },"Anlegen");kachelnAktiv();
+}
+/* ---------- Lücke füllen ---------- */
+function lueckeBlatt(t){
+  const p=P(t.pid),gap=luecke(t),ers=t.rid?ersatz(t):[],kand=kandidaten(t,gap);
+  blatt("Lücke "+kurz(t.datum)+" "+uhr(gap.a)+"–"+uhr(gap.b),`
+  ${t.rid?`<div class="hinweis" style="margin:0 20px 6px">Ersatztermin für ${esc(p.name)} (${artName(t.art)}, ${t.dauer} min)</div><div class="feld">${ers.map((o,i)=>`<div class="vorschlag"><div style="flex:1"><b>${kurz(o.datum)} ${o.start}</b><div class="unter">${esc(Th(o.tid).name)}${o.tid===t.tid?"":" · andere Therapeutin/anderer Therapeut"}</div></div><button class="knopf klein" data-e="${i}">Eintragen</button></div>`).join("")||`<div class="vorschlag hinweis">In den nächsten zwei Wochen nichts frei</div>`}</div>`:""}
+  <div class="hinweis" style="margin:0 20px 6px">Wer passt in die Lücke bei ${esc(Th(t.tid).name)}?</div>
+  <div class="feld">${kand.map((k,i)=>`<div class="vorschlag"><span class="kuerzel" style="background:${artFarbe(k.art)}">${artName(k.art)}</span><div style="flex:1"><b>${esc(P(k.pid).name)}</b> <span class="unter">${uhr(k.start)} · ${k.dauer} min</span><div class="unter">${esc(k.grund)}</div></div><button class="knopf klein" data-k="${i}">Eintragen</button></div>`).join("")||`<div class="vorschlag hinweis">Niemand auf Warteliste oder mit offenem Rezept passt</div>`}</div>
+  <p class="hinweis" style="margin:0 20px">Anrufen und Bestätigen machst du selbst. Die App merkt sich nur, wer passt.</p>`,null);
+  $("#blatt").querySelectorAll("[data-e]").forEach(b=>b.onclick=()=>{const o=ers[+b.dataset.e];D.termine.push({id:id(),tid:o.tid,pid:t.pid,rid:t.rid,datum:o.datum,start:o.start,dauer:t.dauer,art:t.art,status:"geplant"});speichern();b.textContent="✓";b.disabled=true;b.classList.add("leise");zeichnen();toast("Ersatztermin "+kurz(o.datum)+" "+o.start)});
+  $("#blatt").querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{const k=kand[+b.dataset.k];if(!istFrei(t.tid,t.datum,k.start,k.dauer,null)){toast("Zeit inzwischen belegt");return}
+    const rid=k.rid||(D.rezepte.find(r=>r.pid===k.pid&&rezeptStand(r).offen>0)||{}).id||null;
+    D.termine.push({id:id(),tid:t.tid,pid:k.pid,rid,datum:t.datum,start:uhr(k.start),dauer:k.dauer,art:k.art,status:"geplant"});if(k.wl)D.warteliste=D.warteliste.filter(w=>w.id!==k.wl);
+    speichern();zu();zeichnen();toast(P(k.pid).name+" eingetragen")});
+}
+function terminSuche(w){const out=[];let d=heute();for(let i=0;i<10&&out.length<6;i++){d=schritt(d,1);for(const th of D.therapeuten){for(let m=7*60+30;m<=18*60;m+=10){if(passtWunsch(w.wunsch,m)&&istFrei(th.id,d,m,w.dauer)){out.push({tid:th.id,datum:d,start:uhr(m)});break}}if(out.length>=6)break}}
+  blatt("Termin für "+esc(P(w.pid).name),`<div class="hinweis" style="margin:0 20px 6px">Nächste freie Zeiten (${w.wunsch}, ${w.dauer} min)</div><div class="feld">${out.map((o,i)=>`<div class="vorschlag"><div style="flex:1"><b>${kurz(o.datum)} ${o.start}</b><div class="unter">${esc(Th(o.tid).name)}</div></div><button class="knopf klein" data-o="${i}">Eintragen</button></div>`).join("")||`<div class="vorschlag hinweis">Nichts frei</div>`}</div>`,null);
+  $("#blatt").querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>{const o=out[+b.dataset.o];const rid=(D.rezepte.find(r=>r.pid===w.pid&&rezeptStand(r).offen>0)||{}).id||null;
+    D.termine.push({id:id(),tid:o.tid,pid:w.pid,rid,datum:o.datum,start:o.start,dauer:w.dauer,art:w.art,status:"geplant"});D.warteliste=D.warteliste.filter(x=>x.id!==w.id);speichern();zu();zeichnen();toast("Eingetragen, von der Warteliste genommen")});
+}
+function warteNeu(pid){const pats=[...D.patienten].sort((a,b)=>a.name.localeCompare(b.name));
+  blatt("Auf die Warteliste",`<div class="feld"><label><span>Patient</span><select id="wP">${pats.map(p=>`<option value="${p.id}" ${p.id===pid?"selected":""}>${esc(p.name)}</option>`).join("")}</select></label>
+  <label><span>Art</span>${kacheln("art",ARTEN.map(a=>[a[0],a[1]]),"KG")}</label><label><span>Dauer</span>${kacheln("dauer",[[20,"20"],[30,"30"],[40,"40"],[45,"45"]],20)}</label>
+  <label><span>Wunsch</span>${kacheln("wunsch",[["vormittags","Vormittags"],["nachmittags","Nachmittags"],["egal","Egal"]],"egal")}</label><label><span>Notiz</span><input id="wN" placeholder="z. B. möchte früher"></label></div>`,()=>{
+    const w={id:id(),pid:$("#wP").value,art:kachelWert("art"),dauer:+kachelWert("dauer"),wunsch:kachelWert("wunsch"),seit:heute(),notiz:$("#wN").value.trim()};
+    D.warteliste=D.warteliste.filter(x=>x.pid!==w.pid);D.warteliste.push(w);speichern();zeichnen();toast(P(w.pid).name+" steht auf der Warteliste")},"Sichern");kachelnAktiv()}
+/* ---------- Doku offen ---------- */
+function dokuListe(){const od=offeneDoku();
+  blatt("Doku offen ("+od.length+")",`<div class="feld">${od.map(t=>`<div class="vorschlag" data-row="${t.id}"><span class="kuerzel" style="background:${artFarbe(t.art)}">${artName(t.art)}</span><div style="flex:1"><b>${esc(P(t.pid).name)}</b><div class="unter">${kurz(t.datum)} ${t.start} · ${esc(Th(t.tid).name)}</div></div><a class="knopf leise klein" style="text-decoration:none" href="https://8gcbdy8y5g-cyber.github.io/Doku-fix/" target="_blank" rel="noopener">Doku-Fix</a><button class="knopf klein" data-f="${t.id}">Fertig</button></div>`).join("")||`<div class="vorschlag hinweis">Alles dokumentiert</div>`}</div>
+  <p class="hinweis" style="margin:0 20px">In der echten Verbindung würde Doku-Fix den Status selbst zurückmelden, sobald der Text kopiert ist.</p>`,null);
+  $("#blatt").querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{const t=D.termine.find(x=>x.id===b.dataset.f);t.doku="fertig";speichern();b.closest(".vorschlag").remove();zeichnen();toast("Doku fertig")});
+}
+function anDokuFix(tid,d){const ts=D.termine.filter(t=>t.tid===tid&&t.datum===d&&t.status!=="abgesagt").sort((a,b)=>a.start.localeCompare(b.start));
+  if(!ts.length){toast("Keine Termine an diesem Tag");return}
+  const az=(D.arbeitszeit||{})[tid]||["08:00","16:30"],pz=D.pausen[tid];const [y,m,t]=d.split("-");
+  let txt=`${t}.${m}.${y}\nArbeitszeit ${az[0]} bis ${az[1]}\n`+(pz?`Pause: ${pz} - ${uhr(min(pz)+30)}\n`:"");
+  txt+=ts.map(x=>`${x.start} ${x.dauer} ${P(x.pid).hb?"HB ":""}${P(x.pid).name}`).join("\n");
+  blatt("Tagesplan für Doku-Fix",`<div class="feld" style="padding:12px 14px"><pre style="margin:0;font:14px/1.5 ui-monospace,Menlo,monospace;white-space:pre-wrap">${esc(txt)}</pre></div>
+  <p class="hinweis" style="margin:0 20px">In Doku-Fix unter Dienstplan › Plan einlesen › „Oder Text einfügen“ einsetzen. Damit entfällt das Foto. Später kann das direkt passieren, ohne Kopieren.</p>`,()=>{kopiere(txt);return false},"Kopieren");
+}
+/* ---------- Übergabe ---------- */
+function uebergabe(){
+  const tag=werktag(heute());
+  $("#s-uebergabe").innerHTML=`
+  <div class="raster zwei">
+  <div>
+    <div class="box"><h3>Tagesliste</h3><p class="hinweis">Termine eines Tages als Text, zum Abgleich mit der Praxissoftware oder als Dienstplan für Doku-Fix.</p><div class="feld" style="margin:8px 0;background:var(--grund)"><label><span>Tag</span><input type="date" id="uTag" value="${tag}"></label></div><div class="knopfreihe"><button class="knopf" id="uKopie">Kopieren</button></div></div>
+    <div class="box"><h3>Online-Buchung (Muster)</h3><p class="hinweis">So sähe es für Patienten aus. ${D.termine.filter(t=>t.status==="angefragt").length} Anfragen warten auf Bestätigung.</p><div class="knopfreihe"><button class="knopf" id="uBuch">Buchungsseite ansehen</button></div></div>
+    <div class="box"><h3>Kalenderdatei</h3><p class="hinweis">Woche als .ics, lässt sich in Apple Kalender oder viele Praxisprogramme einlesen. Ohne Diagnosen.</p><div class="knopfreihe"><button class="knopf leise" id="uIcs">Diese Woche</button><button class="knopf leise" id="uCsv">Alle Termine als CSV</button></div></div>
+    <div class="box"><h3>Fristen</h3><p class="hinweis">Werte zum Einstellen. Vor dem echten Einsatz mit dem aktuellen Rahmenvertrag abgleichen.</p>
+      <div class="feld" style="margin:8px 0;background:var(--grund)"><label><span>Beginn bis</span><input type="number" id="fB" value="${D.fristen.beginn}" min="1" max="60"> Tage</label><label><span>Längste Lücke</span><input type="number" id="fU" value="${D.fristen.unterbrechung}" min="1" max="60"> Tage</label></div></div>
+    <div class="box"><h3>Testdaten</h3><p class="hinweis">Alles hier ist erfunden und bleibt auf diesem Gerät.</p><div class="knopfreihe"><button class="knopf rot" id="uReset">Testdaten neu erzeugen</button></div></div>
+  </div>
+  <div>
+    <div class="box"><h3>So ist die Arbeit verteilt (Weg 1)</h3>
+      <p><b>Gekaufte Praxissoftware</b> (z. B. thevea oder Henara, beide vorher testen): Stammdaten, Rezeptprüfung, Abrechnung nach §302 mit IK, TI-Anbindung (Pflicht ab 1.10.2027), eVerordnung (ab 1.6.2029), Aufbewahrung der Doku über 10 Jahre.</p>
+      <p><b>Doku-Fix</b>: Befund, Verlauf, Therapieplanung, Texte zum Kopieren. Bleibt auf dem Gerät.</p>
+      <p><b>Dieser Versuch</b>: zeigt, wie Kalender, Patientenliste und Rezeptstand sich anfühlen sollten. Daraus wird eine Wunschliste für die Auswahl der Praxissoftware, keine eigene Akte.</p></div>
+    <div class="box"><h3>Datenschutz</h3><p class="hinweis">Sobald echte Patienten und Kollegen drin sind, gilt: Gesundheitsdaten nach Art. 9 DSGVO, Cloud nur mit EU-Hosting und C5-Nachweis (§393 SGB V), Online-Buchung nur nach den DSK-Regeln von 2025. Darum bleibt der Versuch lokal und nutzt nur erfundene Daten.</p></div>
+  </div></div>`;
+  $("#uBuch").onclick=buchung;
+  $("#uKopie").onclick=()=>{const d=$("#uTag").value;const ts=D.termine.filter(t=>t.datum===d&&t.status!=="abgesagt").sort((a,b)=>(a.tid+a.start).localeCompare(b.tid+b.start));
+    let txt=kurz(d)+"\n";for(const th of D.therapeuten){const l=ts.filter(t=>t.tid===th.id);if(!l.length)continue;txt+="\n"+th.name+"\n"+l.map(t=>`${t.start}  ${t.dauer}  ${artName(t.art)}  ${P(t.pid).name}${P(t.pid).hb?"  HB":""}`).join("\n")+"\n"}
+    kopiere(txt)};
+  $("#uIcs").onclick=()=>{const mo=montag(Z.datum);const ts=D.termine.filter(t=>t.datum>=mo&&t.datum<=plus(mo,4)&&t.status!=="abgesagt");
+    const f=(d,m)=>d.replace(/-/g,"")+"T"+uhr(m).replace(":","")+"00";
+    let s="BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Doku-Fix Praxis Versuch//DE\r\n";
+    for(const t of ts)s+=`BEGIN:VEVENT\r\nUID:${t.id}@dokufix-versuch\r\nDTSTAMP:${f(heute(),0)}\r\nDTSTART;TZID=Europe/Berlin:${f(t.datum,min(t.start))}\r\nDTEND;TZID=Europe/Berlin:${f(t.datum,min(t.start)+t.dauer)}\r\nSUMMARY:${artName(t.art)} ${P(t.pid).name} (${Th(t.tid).name})\r\nEND:VEVENT\r\n`;
+    s+="END:VCALENDAR\r\n";datei("praxis-woche-"+mo+".ics",s,"text/calendar")};
+  $("#uCsv").onclick=()=>{let s="Datum;Beginn;Dauer;Art;Patient;Therapeut;Status\n"+D.termine.sort((a,b)=>(a.datum+a.start).localeCompare(b.datum+b.start)).map(t=>[t.datum,t.start,t.dauer,artName(t.art),P(t.pid).name,Th(t.tid).name,t.status].join(";")).join("\n");datei("praxis-termine.csv","﻿"+s,"text/csv")};
+  $("#fB").onchange=$("#fU").onchange=()=>{D.fristen.beginn=Math.max(1,+$("#fB").value||28);D.fristen.unterbrechung=Math.max(1,+$("#fU").value||14);speichern();toast("Fristen gesichert")};
+  $("#uReset").onclick=()=>{D=testdaten();speichern();zeichnen();toast("Neue Testdaten erzeugt")};
+}
+function kopiere(t){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast("Kopiert")).catch(()=>{const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");toast("Kopiert")}catch(e){toast("Kopieren nicht möglich")}a.remove()})}
+function datei(name,inhalt,typ){const b=new Blob([inhalt],{type:typ});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);toast(name+" erstellt")}
+
+/* ---------- Ablauf ---------- */
+function wechsel(s){Z.seite=s;document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("an",b.dataset.s===s));document.querySelectorAll(".seite").forEach(x=>x.classList.toggle("an",x.id==="s-"+s));scrollTo(0,0);zeichnen()}
+function zeichnen(){kopf();({kalender,patienten,rezepte,uebergabe})[Z.seite]()}
+document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>wechsel(b.dataset.s));
+$("#pSuche").oninput=patienten;
+laden();zeichnen();
+if(innerWidth<600)Z.ansicht="tag";
+</script>
+</body>
+</html>

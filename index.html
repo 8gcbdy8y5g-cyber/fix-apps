@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,5 +10,13 @@
 <style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#1a1a1a;color:#f2f2f2;font:17px/1.5 -apple-system,Arial,sans-serif}main{max-width:420px;width:100%;padding:24px}a{display:block;background:#2a2a2a;color:#cfe9a8;text-decoration:none;border-radius:14px;padding:15px 18px;margin:10px 0;font-weight:600}</style>
 </head>
 <body><main><h1>Fix-Apps</h1>
-<a href="kraft-fix/">Kraft-Fix</a><a href="rad-fix/">Rad-Fix</a><a href="winkel-test/">Nullpunkt (Winkelmessung)</a>
-</main></body></html>
+<a href="kraft-fix/">Kraft-Fix</a><a href="rad-fix/">Rad-Fix</a><a href="winkel-test/">Nullpunkt (Winkelmessung)</a><a href="praxis-versuch/">Praxis-Versuch (erfundene Daten)</a>
+<div id="alt" hidden style="margin-top:26px"><p style="color:#cfcfcf">Auf diesem Gerät liegen noch Daten vom alten Doku-Fix. Doku-Fix läuft jetzt unter <a style="display:inline;padding:0;background:none" href="https://dokufix-app.github.io/">dokufix-app.github.io</a>. Wenn dort alles angekommen ist, lösch die alten Daten hier.</p><button id="weg" type="button" style="width:100%;border:0;border-radius:14px;padding:15px;background:#2a2a2a;color:#ff7b72;font:600 17px -apple-system,Arial,sans-serif">Alte Doku-Fix-Daten löschen</button></div>
+</main>
+<script>
+(function(){function k(){var a=[];try{for(var i=0;i<localStorage.length;i++){var n=localStorage.key(i);if(/^(physio-doku|doku-fix)/.test(n))a.push(n)}}catch(e){}return a}
+var box=document.getElementById("alt");if(k().length)box.hidden=false;
+document.getElementById("weg").addEventListener("click",function(){if(!confirm("Alte Doku-Fix-Daten auf diesem Gerät endgültig löschen? Kraft-Fix und Rad-Fix bleiben."))return;k().forEach(function(n){try{localStorage.removeItem(n)}catch(e){}});
+caches&&caches.keys().then(function(ks){ks.filter(function(x){return x.indexOf("doku-fix-v")===0}).forEach(function(x){caches.delete(x)})});box.hidden=true;});})();
+</script>
+</body></html>
