@@ -99,6 +99,8 @@ button{font-family:inherit}
 .aufbau{display:grid;gap:8px;background:var(--card);border-radius:18px;padding:12px;margin-bottom:12px}
 .aufsvg{--tape:#4f6d10;--on-tape:#fff;--fill:#E5E5EA;--line:#D1D1D6;--card:#FFFFFF;--muted:#6C6C70;--fg:#000;background:#F7F7FA;border-radius:12px;overflow:hidden}
 .aufsvg svg{display:block;width:100%;height:auto;max-height:42vh}
+.aufsvg img.auffoto{display:block;width:100%;height:auto;max-height:42vh;object-fit:cover;aspect-ratio:4/3}
+.aufsvg img.auffoto.links{transform:scaleX(-1)}
 .auftxt{margin:0;font-size:14.5px;font-weight:600;max-width:65ch}
 .paste{display:grid;gap:8px;margin-top:10px}
 .paste textarea{width:100%;min-height:72px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg);font:14px var(--font);padding:8px}
@@ -157,7 +159,7 @@ details .body p{margin:0;max-width:65ch}
 @media (min-width:700px){ .chips{flex-wrap:wrap;overflow-x:visible} .chip{padding:10px 14px;font-size:15px} }
 @media (min-width:820px){ body{padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
   .wide{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(320px,1fr);gap:18px;align-items:start}
-  .stage canvas{max-height:78vh} .aufsvg svg{max-height:52vh} }
+  .stage canvas{max-height:78vh} .aufsvg svg,.aufsvg img.auffoto{max-height:52vh} }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 /* Praxis-Bedienelemente: Pillenform, Auswahl und Hauptknopf in Lindgrün */
 .chip{border-radius:999px;padding-inline:16px}

@@ -125,11 +125,18 @@ document.querySelectorAll("#methode button").forEach(b => b.onclick = () => { if
 document.querySelectorAll("#seite button").forEach(b => b.onclick = () => { side = b.dataset.s; renderPick(); resetCam(); });
 
 /* ---------------- Aufbau für Kamera und Foto ---------------- */
+/* Fotos vom Aufbau (rechte Seite; für links gespiegelt) */
+const AUFFOTO = { "s-flex": "cam-s-seitlich", "s-ext": "cam-s-seitlich", "s-abd": "cam-s-frontal", "e-flex": "cam-e-seitlich", "e-ext": "cam-e-seitlich",
+  "f-mcp": "cam-f-seitlich", "f-pip": "cam-f-seitlich", "f-dip": "cam-f-seitlich", "hu-flex": "cam-hu-rueckenlage", "hu-ext": "cam-hu-bauchlage",
+  "hu-abd": "cam-hu-frontal", "k-flex": "cam-k-seitlich", "k-ext": "cam-k-seitlich", "o-de": "cam-o-seitlich", "o-pf": "cam-o-seitlich" };
 function showAufbau() {
   const box = $("aufbau"); if (!box) return;
   const a = window.ANL3 && ANL3.aufbau && (method === "cam" || method === "foto") && !camOn && !demoOn ? ANL3.aufbau(mv.k, side) : null;
   box.hidden = !a; if (!a) return;
-  $("aufsvg").innerHTML = a.svg; $("auftxt").textContent = a.text; $("aufalt").textContent = a.alt || "";
+  const foto = AUFFOTO[mv.k];
+  if (foto) { const im = document.createElement("img"); im.src = "bilder/" + foto + ".webp"; im.alt = "Aufbau: " + a.text; im.className = "auffoto" + (side === "l" ? " links" : ""); im.onerror = () => { $("aufsvg").innerHTML = a.svg; }; $("aufsvg").replaceChildren(im); }
+  else $("aufsvg").innerHTML = a.svg;
+  $("auftxt").textContent = a.text; $("aufalt").textContent = a.alt || "";
 }
 
 /* ---------------- Ergebnis ---------------- */
