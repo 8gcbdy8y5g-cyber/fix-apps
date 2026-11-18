@@ -772,9 +772,25 @@ function sensorPrepare() {
   sen = { mode: sm.mode, state: "aus", g0: null, gA: null, axis: null, locked: false, live: null, prev: null, unwrap: 0, reps: [], stillSince: 0, offW: 0, lastCap: 0 };
   $("s-start").hidden = false; $("s-reset").hidden = true; $("s-start").textContent = "Sensor starten";
   senText(sm.mode === "two" ? sm.tip1 : sm.tip);
-  const an = window.ANL && ANL.A[mv.k]; $("lage").textContent = an ? an.lage : ""; $("lagebox").hidden = !an;
+  const an = window.ANL && ANL.A[mv.k]; $("lage").textContent = an ? an.lage : ""; senFoto(); $("lagebox").hidden = !an;
   $("s-howto").hidden = !an; if (!an) howto(false);
   drawDial(null, ""); senSteps(0); senStat();
+}
+/* Fotos: so wird das Handy angelegt (rechte Seite; für links gespiegelt). Zwei Bilder = zweistufige Messung. */
+const SENFOTO = { "s-flex": ["sen-s-oberarm-aussen"], "s-ext": ["sen-s-oberarm-aussen"], "s-abd": ["sen-s-oberarm-vorn"], "s-ar": ["sen-s-rotation"], "s-ir": ["sen-s-rotation"],
+  "e-flex": ["sen-e-oberarm", "sen-e-unterarm"], "e-ext": ["sen-e-oberarm", "sen-e-unterarm"], "u-pro": ["sen-u-faust"], "u-sup": ["sen-u-faust"],
+  "h-ext": ["sen-h-handruecken"], "h-flex": ["sen-h-handruecken"], "c-flex": ["sen-c-kopf-seitlich"], "c-ext": ["sen-c-kopf-seitlich"], "c-lat": ["sen-c-stirn-sitz"], "c-rot": ["sen-c-stirn-liegend"],
+  "hu-flex": ["sen-hu-rueckenlage"], "hu-ext": ["sen-hu-bauchlage"], "hu-ar": ["sen-hu-sitz"], "hu-ir": ["sen-hu-sitz"],
+  "k-flex": ["sen-k-oberschenkel", "sen-k-unterschenkel"], "k-ext": ["sen-k-oberschenkel", "sen-k-unterschenkel"],
+  "o-lunge": ["sen-o-lunge"], "o-de": ["sen-o-unterschenkel", "sen-o-fusskante"], "o-pf": ["sen-o-unterschenkel", "sen-o-fusskante"] };
+function senFoto() {
+  const box = $("senfoto"); if (!box) return; const f = SENFOTO[mv.k] || [];
+  box.hidden = !f.length; box.className = "senfoto" + (f.length > 1 ? " zwei" : ""); box.replaceChildren();
+  f.forEach((n, i) => { const fig = document.createElement("figure"); const im = document.createElement("img");
+    im.src = "bilder/" + n + ".webp"; im.alt = "So wird das Handy angelegt" + (f.length > 1 ? ", Schritt " + (i + 1) : ""); im.loading = "lazy";
+    if (joint.side && side === "l") im.className = "links"; im.onerror = () => fig.remove(); fig.appendChild(im);
+    if (f.length > 1) { const c = document.createElement("figcaption"); c.textContent = i + 1; fig.appendChild(c); }
+    box.appendChild(fig); });
 }
 function stopSensor() { if (sen) sen.state = "aus"; keepAwake(false); }
 function senText(t) { $("steptxt").textContent = t; }

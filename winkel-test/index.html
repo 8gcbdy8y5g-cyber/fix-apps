@@ -93,6 +93,12 @@ button{font-family:inherit}
 .tapnote{position:absolute;bottom:8px;left:0;right:0;text-align:center;font-size:12px;color:var(--muted)}
 .lage{display:flex;gap:10px;align-items:flex-start;background:var(--tape-soft);border-radius:12px;padding:10px 12px;font-size:14px;margin:0}
 .lage svg{flex:0 0 auto;width:18px;height:28px;margin-top:1px}
+.senfoto{display:grid;gap:8px;grid-template-columns:1fr}
+.senfoto.zwei{grid-template-columns:1fr 1fr}
+.senfoto figure{margin:0;position:relative}
+.senfoto img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;border-radius:12px;background:var(--fill)}
+.senfoto img.links{transform:scaleX(-1)}
+.senfoto figcaption{position:absolute;left:8px;top:8px;background:var(--hit);color:var(--on-hit);font-weight:800;font-size:13px;border-radius:999px;padding:2px 9px}
 .lage b{display:block;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--tape);margin-bottom:1px}
 .howto{display:grid;gap:8px;background:var(--fill);border-radius:14px;padding:10px}
 .howto canvas{width:100%;height:auto;display:block}
@@ -239,6 +245,7 @@ details .body p{margin:0;max-width:65ch}
     <section id="v-sen" class="sensor" aria-label="Sensormessung" hidden>
       <div class="steps" id="steps"><span></span><span></span><span></span></div>
       <p class="lage" id="lagebox"><svg viewBox="0 0 18 28" aria-hidden="true"><rect x="1" y="1" width="16" height="26" rx="3.5" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--tape)"/><rect x="6" y="3.5" width="6" height="2" rx="1" fill="var(--tape)"/></svg><span><b>Auflegen</b><span id="lage"></span></span></p>
+      <div class="senfoto" id="senfoto" hidden></div>
       <div class="steptxt" id="steptxt">Sensor starten, dann das Handy anlegen.</div>
       <div class="dialwrap" id="dialwrap" role="button" tabindex="0" aria-label="Tippen übernimmt den aktuellen Wert">
         <svg viewBox="0 0 260 260" id="dial"></svg>
